@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loro PM — Tu Project Manager con IA</title>
+  <meta name="description" content="Un skill de IA que actúa como tu project manager personal. Instalalo en Claude Code y dejá que el loro organice tu día.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green-dark: #0d2818;
+      --green-mid: #1a472a;
+      --green-light: #2d7a4a;
+      --green-bright: #4adb6e;
+      --gold: #ffd700;
+      --orange: #f4a261;
+      --red: #e63946;
+      --text: #f0f0f0;
+      --text-muted: #a8d8b9;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--green-dark);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 30%, rgba(45, 122, 74, 0.4) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .loro-hero {
+      font-size: 6rem;
+      margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: var(--text-muted);
+      max-width: 540px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Install section */
+    .install-box {
+      background: var(--green-mid);
+      border: 2px solid var(--green-light);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 560px;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .install-box h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .code-block {
+      background: var(--green-dark);
+      border: 1px solid var(--green-light);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+      font-size: 1rem;
+      color: var(--green-bright);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+
+    .code-block:hover {
+      border-color: var(--gold);
+    }
+
+    .code-block code {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px;
+      flex-shrink: 0;
+      transition: color 0.2s;
+    }
+
+    .copy-btn:hover { color: var(--gold); }
+
+    .copy-toast {
+      position: absolute;
+      top: -2rem;
+      right: 0;
+      background: var(--green-bright);
+      color: var(--green-dark);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .copy-toast.show { opacity: 1; }
+
+    .alt-link {
+      display: inline-block;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-bottom: 1px dashed var(--green-light);
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .alt-link:hover {
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
+    /* Sections */
+    section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    section h2 {
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    /* How it works */
+    .steps {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), var(--orange));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .step-content h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .step-content p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .step-content .code-inline {
+      background: var(--green-dark);
+      border: 1px solid var(--green-light);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.85rem;
+      color: var(--green-bright);
+    }
+
+    /* Messages */
+    .messages {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .message-card {
+      background: var(--green-mid);
+      border: 1px solid var(--green-light);
+      border-radius: 10px;
+      padding: 1.2rem;
+      font-size: 0.95rem;
+      font-style: italic;
+      color: var(--text-muted);
+      position: relative;
+      padding-left: 3rem;
+    }
+
+    .message-card::before {
+      content: "🦜";
+      position: absolute;
+      left: 1rem;
+      top: 1.1rem;
+      font-size: 1.2rem;
+      font-style: normal;
+    }
+
+    /* Features */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature {
+      background: var(--green-mid);
+      border: 1px solid var(--green-light);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature h3 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .feature p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* CTA */
+    .cta {
+      text-align: center;
+      padding: 4rem 2rem;
+      border-top: 1px solid var(--green-light);
+    }
+
+    .cta .loro-cta { font-size: 3rem; margin-bottom: 1rem; }
+
+    .cta p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta .code-block {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--green-light);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(45, 122, 74, 0.3);
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="loro-hero">🦜</div>
+    <h1>Loro PM</h1>
+    <p class="subtitle">Un skill de IA que actúa como tu project manager personal. Instalalo y dejá que el loro te organice el día.</p>
+
+    <div class="install-box">
+      <h2>Instalá el skill</h2>
+      <div class="code-block" onclick="copiar(this)">
+        <code>npx skills add 4lb0/skills</code>
+        <button class="copy-btn" aria-label="Copiar">⧉</button>
+        <span class="copy-toast">¡Copiado!</span>
+      </div>
+      <a class="alt-link" href="https://github.com/4lb0/skills/blob/main/loro/SKILL.md" target="_blank" rel="noopener">
+        O descargá el skill directamente desde GitHub →
+      </a>
+    </div>
+  </div>
+
+  <!-- Cómo funciona -->
+  <section>
+    <h2>¿Cómo funciona?</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Instalá el skill</h3>
+          <p>Ejecutá <span class="code-inline">npx skills add 4lb0/skills</span> en tu terminal. El loro se integra directamente con Claude Code.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Usá el comando</h3>
+          <p>Escribí <span class="code-inline">/loro</span> en Claude Code y el loro arranca a trabajar como tu PM personal.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Planificá tu día</h3>
+          <p>El loro te ayuda a organizar tareas, priorizar el backlog y mantener el foco. Con personalidad y sin filtro.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mensajes -->
+  <section>
+    <h2>El loro tiene cosas para decirte</h2>
+    <div class="messages">
+      <div class="message-card">"¡SQUAWK! ¡Es hora de planificar tu día, capitán!"</div>
+      <div class="message-card">"¡Loro dice: organizá tus tareas o te pico!"</div>
+      <div class="message-card">"¡Crrr! ¿Ya revisaste tu board? ¡El sprint no espera!"</div>
+      <div class="message-card">"¡Cotorro dice: el que no planifica, improvisa!"</div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section>
+    <h2>¿Por qué un loro de PM?</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h3>Un comando</h3>
+        <p>Instalás con npx y listo. Sin configuración, sin complicaciones.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🤖</div>
+        <h3>Integrado con IA</h3>
+        <p>Funciona dentro de Claude Code como un skill nativo. La IA es tu PM.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎯</div>
+        <h3>Foco en productividad</h3>
+        <p>Te ayuda a planificar, priorizar y no perder de vista lo importante.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🦜</div>
+        <h3>Con personalidad</h3>
+        <p>No es un asistente aburrido. Es un loro. Te pica si no planificás.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA final -->
+  <div class="cta">
+    <div class="loro-cta">🦜</div>
+    <p>¿Listo para que el loro te organice?</p>
+    <div class="code-block" onclick="copiar(this)">
+      <code>npx skills add 4lb0/skills</code>
+      <button class="copy-btn" aria-label="Copiar">⧉</button>
+      <span class="copy-toast">¡Copiado!</span>
+    </div>
+  </div>
+
+  <footer>
+    <a href="https://github.com/4lb0/skills" target="_blank" rel="noopener">GitHub</a>
+  </footer>
+
+  <script>
+    function copiar(el) {
+      const code = el.querySelector("code").textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const toast = el.querySelector(".copy-toast");
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1500);
+      });
+    }
+  </script>
+</body>
+</html>
